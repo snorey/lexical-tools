@@ -35,10 +35,13 @@ locale.setlocale(locale.LC_ALL,"English_US")
 class ufo: #Thanks to Robert Ullmann for this bit of simple magic.
 	year=datetime.date.today().year
 	month=datetime.date.today().month
+
 	def __init__(self, **k):
 		for a in k: setattr(self, a, k[a])
+
 	def __str__(self):
 		return self.year+"-"+self.month
+
 
 class sourceobject:
 	file=""
@@ -109,6 +112,7 @@ class sourceobject:
 					if datum != "":
 						break
 		return datum
+
 	def getinfo(self):
 		specials={"&agr;":"&#945;","&bgr;":"&#946;","&dgr;":"&#948;"} # Annoying extra entities used by Nature, probably others
 		for s in specials.keys():
@@ -122,18 +126,23 @@ class sourceobject:
 		self.gettitle()
 		self.geturl()
 		self.getvolume()
+
 	def getauthor(self):
 		self.author=self.getdatum(self.authormatchers)
 		self.authorclean()
+
 	def getdate(self,default=datetime.date.today().isoformat()):
 		self.date=self.getdatum(self.datematchers,default)
 #		print self.date
 		self.dateclean()
+
 	def getdoi(self):
 		self.doi=self.getdatum(self.doimatchers)
+
 	def getissue(self):
 		if self.issuematchers:
 			self.issue=self.getdatum(self.issuematchers)
+
 	def getpage(self):
 		if self.pagematchers: 
 			self.page=self.getdatum(self.pagematchers)
@@ -145,8 +154,10 @@ class sourceobject:
 					self.page=""
 				else:
 					self.page=self.page.strip()
+
 	def getsource(self):
 		if self.sourcematchers: self.sourcename=self.getdatum(self.sourcematchers)
+
 	def gettitle(self):
 		self.title=self.getdatum(self.titlematchers)
 		self.titleclean()
@@ -160,6 +171,7 @@ class sourceobject:
 		self.url=self.getdatum(self.urlmatchers)
 		if self.urlcore:
 			self.url=self.urlcore.replace("{{{match}}}",self.url)
+
 	def getvolume(self):
 		if self.volmatchers:
 			self.volume=self.getdatum(self.volmatchers)
@@ -214,6 +226,7 @@ class sourceobject:
 						self.author=""
 		if self.sourcename=="New York Times":
 			self.author=self.author.title() #Titlecasing
+
 	def dateclean(self):
 		self.date=re.sub("\<.*?\>","",self.date)
 		if self.sourcename=="New York Times":
@@ -291,6 +304,7 @@ class sourceobject:
 		if self.sourcename=="New York Times": #Style section sometimes in UTF-8, unmarked
 			if "â€" in text: returnme="utf-8"
 		return returnme
+
 
 def getsourcedata(sourcey): 
 	attributes={}
@@ -809,6 +823,7 @@ def badbreak(sentence,next=""): # checks whether the next block is actually part
 			return True
 	return False
 
+
 def getpathdata(path): #gets date and source alias  from name of a directory in the form "<source alias>_<date>"
 	today=datetime.date.today()
 	pathparts=path.split("\\")
@@ -980,6 +995,7 @@ def issuspicious(word,words,y,English):
 		return False
 	return False
 
+
 def learn(path):
 	if "\\" not in path: return False
 	print "Learning from "+path+"..."
@@ -1016,6 +1032,7 @@ def learn(path):
 	logfile.close()
 	return added
 
+
 def learnfromfile():
 	return True #Cut off for now.
 	file=open(scriptdir+"\\homework.txt","r")
@@ -1032,6 +1049,7 @@ def learnfromfile():
 	blankthis=open(scriptdir+"\\homework.txt","w")
 	blankthis.write("")
 	blankthis.close()
+
 
 def cleanstops():
 	English=gettitles()
@@ -1053,6 +1071,7 @@ def cleanstops():
 	logfile=open(scriptdir+"\\stoplog.txt","a")
 	logfile.write("\n\n"+str(datetime.date.today())+"\nRemoved:\n"+str(removed))
 
+
 def isspringer(text):
 	match=re.search('\<a name=\"title\"\>\<\/a\>',text)
 	if match:
@@ -1060,27 +1079,6 @@ def isspringer(text):
 	else: 
 		return False
 
-def unescape(text): 
-#From code by Fredrik Lundh at http://effbot.org/zone/re-sub.htm#-html
-# Licensed to the public domain at http://effbot.org/zone/copyright.htm
-# Seems to work better than BeautifulSoup for this purpose
-    def fixup(m):
-        text = m.group(0)
-        if text[:2] == "&#":
-            try:
-                if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
-                else:
-                    return unichr(int(text[2:-1]))
-            except ValueError:
-                pass
-        else:
-            try:
-                text = unichr(name2codepoint[text[1:-1]])
-            except KeyError:
-                pass
-        return text
-    return re.sub("\&\#?\w+\;", fixup, text)
 
 def titlegrabber(lang="English"):
 	import xmlreader
@@ -1193,6 +1191,7 @@ def trackinglist(dir=scriptdir+"\\Tracking",cutoff=3):
 		actionfilename="wanted.txt"
 		os.system("fsutil hardlink create "+actiondir+"\\"+actionfilename+" "+dir.replace("\\\\","\\")+"\wanted.txt")
 
+
 def gethotlist(hotlistdir="D:\Code\\Tracking\\Hotlist"): 
 	hotlist=set()
 	for filename in os.listdir(hotlistdir):
@@ -1203,6 +1202,7 @@ def gethotlist(hotlistdir="D:\Code\\Tracking\\Hotlist"):
 			hotlist.add(match.group(1).strip())
 #	print "Hotlist length: "+str(len(hotlist))
 	return hotlist
+
 
 def batchup(dir="D:\Action",prefix="User:Visviva/"):
 	import wikipedia
@@ -1221,12 +1221,14 @@ def batchup(dir="D:\Action",prefix="User:Visviva/"):
 		page.put(text,"Batch upload of tracking lists",True,True)
 		time.sleep(30)
 
+
 def oneup(path,page):
 		text=open(path+"\\"+"candidates.txt").read()
 		if "fraktionary" in str(page.site()):
 			text=text.replace("{{User:Visviva/","{{")
 		text=unicode(text,encoding="utf-8",errors="ignore")
 		page.put(text)
+
 
 def MontyPos(text,keyword): #Gets POS for keyword from tagged sentence produced by MontyTagger
 	tags={
